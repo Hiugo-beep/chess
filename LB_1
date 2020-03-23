@@ -1,13 +1,18 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 class Interface implements ActionListener {
+
 	JLabel jlab;
+	private Graphics2D g;
+	Back back = new Back();
 	Interface()
 	{
+		
 		JFrame jfrm = new JFrame ("Chess");
 		jfrm.getContentPane().setLayout(new FlowLayout());
-		jfrm.setSize(420,400);
+		jfrm.setSize(800,800);
 		jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
@@ -28,12 +33,10 @@ class Interface implements ActionListener {
 		
 		JMenu jmOptions = new JMenu ("Options");
 		JMenu jmColors = new JMenu ("Colors");
-		JMenuItem jmiRed = new JMenuItem("Red");
-		JMenuItem jmiGreen = new JMenuItem("Green");
-		JMenuItem jmiBlue = new JMenuItem("Blue");
-		jmColors.add(jmiRed);
-		jmColors.add(jmiGreen);
-		jmColors.add(jmiBlue);
+		JMenuItem jmiWhite= new JMenuItem("White figures");
+		JMenuItem jmiBlack = new JMenuItem("Black figures");
+		jmColors.add(jmiWhite);
+		jmColors.add(jmiBlack);
 		jmOptions.add(jmColors);
 		
 		JMenu jmPriority = new JMenu ("Priority");
@@ -59,9 +62,8 @@ class Interface implements ActionListener {
 		jmiClose.addActionListener(this);
 		jmiSave.addActionListener(this);
 		jmiExit.addActionListener(this);
-		jmiRed.addActionListener(this);
-		jmiGreen.addActionListener(this);
-		jmiBlue.addActionListener(this);
+		jmiWhite.addActionListener(this);
+		jmiBlack.addActionListener(this);
 		jmiHigh.addActionListener(this);
 		jmiLow.addActionListener(this);
 		jmiReset.addActionListener(this);
@@ -69,12 +71,19 @@ class Interface implements ActionListener {
 		
 		jfrm.getContentPane().add(jlab);
 		jfrm.setJMenuBar(jmb);
+		
+		//drawIcon(g);
 		jfrm.setVisible(true);
+	}
+	public void gameRender()
+	{
+		back.draw(g);
 	}
 		public void actionPerformed(ActionEvent ae) {
 			String comStr = ae.getActionCommand();
 			if(comStr.equals("Exit")) System.exit(0);
 			//jlab.setText(comStr + " Selected");
+			gameRender();
 	}
 		
 	public static void main(String args[]) {
