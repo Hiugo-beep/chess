@@ -1,0 +1,23 @@
+import javax.swing.*;
+import java.awt.*;
+public class PanelPictureFrame extends JPanel {
+    private Image image;
+    public Image getImage() {
+        return image;
+    }
+    public void setImage(Image image) {
+        this.image = image;
+    }
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if(image != null){
+            g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+        }
+    }
+    public void paintComponent(Graphics g,int x, int y) {
+        super.paintComponent(g);
+        if(image != null){
+            g.drawImage(image, x, y, getWidth(), getHeight(), null);
+        }
+    }
+}
