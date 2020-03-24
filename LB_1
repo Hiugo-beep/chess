@@ -2,11 +2,18 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+
+import javax.imageio.ImageIO;
+
+import java.io.File;
+import java.io.IOException;
+
 class Interface implements ActionListener {
 
 	JLabel jlab;
-	private Graphics2D g;
-	Back back = new Back();
+
+	Graphics g;
+	
 	Interface()
 	{
 		
@@ -39,13 +46,6 @@ class Interface implements ActionListener {
 		jmColors.add(jmiBlack);
 		jmOptions.add(jmColors);
 		
-		JMenu jmPriority = new JMenu ("Priority");
-		JMenuItem jmiHigh = new JMenuItem("High" );
-		JMenuItem jmiLow = new JMenuItem("Low");
-		jmPriority.add(jmiHigh);
-		jmPriority.add(jmiLow);
-		
-		jmOptions.add(jmPriority);
 		
 		JMenuItem jmiReset = new JMenuItem("Reset" );
 		jmOptions.addSeparator();
@@ -64,8 +64,7 @@ class Interface implements ActionListener {
 		jmiExit.addActionListener(this);
 		jmiWhite.addActionListener(this);
 		jmiBlack.addActionListener(this);
-		jmiHigh.addActionListener(this);
-		jmiLow.addActionListener(this);
+
 		jmiReset.addActionListener(this);
 		jmiAbout.addActionListener(this);
 		
@@ -73,13 +72,42 @@ class Interface implements ActionListener {
 		jfrm.setJMenuBar(jmb);
 		
 		//drawIcon(g);
+		PanelPictureFrame pp = new PanelPictureFrame();
+        pp.setLayout(new BorderLayout());
+        try {
+        	pp.setImage(ImageIO.read(new File("res/board.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+        pp.setPreferredSize(new Dimension(504, 504));
+        //jfrm.add(new JScrollPane(pp));
+        jfrm.add(pp);
+        JPanel jpl = new JPanel();
+       ///////////////////////////////////////////////////
+        PanelPictureFrame rookblack = new PanelPictureFrame();
+        rookblack.setLayout(new BorderLayout());
+        try {
+        	rookblack.setImage(ImageIO.read(new File("res/rookBlack.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+        rookblack.setPreferredSize(new Dimension(100, 100));
+       // Graphics g;
+        //jfrm.add(new JScrollPane(rookblack));
+       //rookblack.paintComponent(g,10,10);
+        //jpl.add(rookblack,10,10);
+        jfrm.add(jpl);
+        jfrm.pack();
+        jfrm.setSize(600, 600);
+        jfrm.setLocationRelativeTo(null);
 		jfrm.setVisible(true);
 	}
 	public void gameRender()
 	{
-		back.draw(g);
+		//back.draw(g);
 	}
-		public void actionPerformed(ActionEvent ae) {
+	
+	public void actionPerformed(ActionEvent ae) {
 			String comStr = ae.getActionCommand();
 			if(comStr.equals("Exit")) System.exit(0);
 			//jlab.setText(comStr + " Selected");
@@ -93,4 +121,5 @@ class Interface implements ActionListener {
 			}
 		});
 	}
+	
 }
