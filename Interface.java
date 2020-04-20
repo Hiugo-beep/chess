@@ -298,7 +298,7 @@ class Interface extends JPanel implements ActionListener  {
 			gameRender();
 	}
 		
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		
 		//Фрейм оздается в потоке обработки событий
 		SwingUtilities.invokeLater(new Runnable() {
@@ -309,4 +309,3 @@ class Interface extends JPanel implements ActionListener  {
 	}
 	
 }
-
