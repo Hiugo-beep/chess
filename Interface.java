@@ -81,7 +81,8 @@ class Interface implements Runnable /*extends JPanel*/  {
 		jmMode.add(jmiEasy);
 		jmMode.add(jmiMedium);
 		jmb.add(jmMode);
-		
+		JButton next = new JButton("next move");
+		next.addActionListener(new ButtonListener());
 		JMenu jmOptions = new JMenu ("Options");//создание пунктов меню Options
 		JMenuItem jmiBack = new JMenuItem("Back" );
 		jmOptions.add(jmiBack);//Включение пункта в состав меню Options
@@ -226,6 +227,7 @@ class Interface implements Runnable /*extends JPanel*/  {
 		panel.setLayout(new FlowLayout());
 		panel.add(BorderLayout.WEST,labMove);
 		panel.add(BorderLayout.CENTER,jtabField);
+		panel.add(BorderLayout.SOUTH,next);
 		panel.setPreferredSize(new Dimension(1400, frame.getHeight()));
 		frame.getContentPane().add(panel);
 		frame.pack();
@@ -313,6 +315,17 @@ class Interface implements Runnable /*extends JPanel*/  {
 	}
 	class ChessListener implements ActionListener {//слушатель кноки ПРАВИЛА
 		public void actionPerformed(ActionEvent event) {}
+	}
+	class ButtonListener implements ActionListener {//слушатель кноки ПРАВИЛА
+		public void actionPerformed(ActionEvent event) {
+			if(handField.flagReplay) {
+			handField.sleepy.interrupt();
+			handField.checkSelectedFigureX();
+			handField.thread.interrupt();
+		render.setField(handField.fieldChess);
+		render.setGreenField(handField.GreanCircles);
+			}
+		}
 	}
 	class PlayerListener implements MouseListener {
 		public void mousePressed(MouseEvent event) {}
