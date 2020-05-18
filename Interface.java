@@ -1,21 +1,29 @@
 package Interface;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
-import javax.imageio.ImageIO;
+import java.util.concurrent.TimeUnit;
+import java.util.Scanner;
+class MyPanel extends JPanel { 
+	public void paintComponent(Graphics g) {
+		Image image = new ImageIcon("res/back.jpg").getImage();
+		g.drawImage (image,0,0,this);
+		Image image1 = new ImageIcon("res/chika.gif").getImage();
+		g.drawImage (image1,50,0,this);
+	}
+}
 
-import java.io.File;
-import java.io.IOException;
-
-class Interface extends JPanel implements ActionListener  {
-	JLabel jlab;
- //Массив заголовков таблицы
-	String[] headings = {"","","","","","","","","","" };
-//Массив содердимого таблицы
-	Object [] [] data = {
+class Interface implements Runnable /*extends JPanel*/  {
+	 Field fieldChess;
+	 Thread thread;
+	 Sleeper sleepyGUI;
+	 Scanner scan;
+	String[] headings = {"","","","","","","","","","" };//Массив заголовков таблицы
+	Object [] [] data = {//Массив содержимого таблицы
 		   //0   1  2  3  4  5  6  7  8  9 
 			{"","            A","            B","            C","            D","            E","            F","            G","            H",""}	,         //0
 			{"           1","","","","","","","","","           1"}	,         //1
@@ -29,213 +37,162 @@ class Interface extends JPanel implements ActionListener  {
 			{"","            A","            B","            C","            D","            E","            F","            G","            H",""}	          //9
 			
 	};
-	
-	
-	//Graphics g;
-	//Location back;
-	//Location back = new Location();
-	//Location forward = new Location();
-	//boolean move = false;
+	Render render;
+	Location selectedFigure;
+	Location oldSelectedFigure;
+	JFrame frame;
+	FieldHandler handField;
+	Interface gui;
+	//boolean gameOver = false;
+	public void go(){
+		gui.render.setField(fieldChess);
+	}
 	Interface()
 	{
-		Field chess_field1;
-		chess_field1 = new Field();
-
-		//chess_field.Field();
-		/*int battle_count_w = 0;
-		int battle_count_b = 0;
-		boolean figure_w;
-		boolean figure_b;
-		int number_f;
-		char personal_symbol_f;*/
-		chess_field1.field_f [7][0].add_position_field('w', 'r', 1);
+		sleepyGUI = new Sleeper("SleepyGUI", 1500);
+		thread = new Thread(this);
+		thread.setName("gui");
+		frame = new JFrame ("Chess");      //Создание нового элемента JFrame
+		frame.setSize(800,800); //Начальный размер фрейма
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//завершение программы при закрытии окна пользователем
+		JMenuBar jmb = new JMenuBar();//создание строки меню
+			
 		
-		chess_field1.field_f [7][7].add_position_field('w', 'r', 2);
-		chess_field1.field_f[7][1].add_position_field('w', 'h', 1);
-		chess_field1.field_f[7][6].add_position_field('w', 'h', 2);
-		chess_field1.field_f[7][2].add_position_field('w', 'e', 1);
-		chess_field1.field_f[7][5].add_position_field('w', 'e', 2);
-		chess_field1.field_f[7][3].add_position_field('w', 'q', 1);
-		chess_field1.field_f[7][4].add_position_field('w', 'k', 1);
+		JMenu jmFile = new JMenu("File");//создание меню File,Options, Colors
+		JMenuItem jmiOpen = new JMenuItem("Open");//создание пунктa ОТКРЫТЬ
+		jmFile.add(jmiOpen);
+		jmiOpen.addActionListener(new OpenListener());
+		JMenuItem jmiSave = new JMenuItem("Save");//создание пункта СОХРАНИТЬ
 		
-		for(int i=0;i<8;i++)
-		{
-			chess_field1.field_f[1][i].add_position_field('b', 'p', i+1);
-			chess_field1.field_f[6][i].add_position_field('w', 'p', i+1);
-		}
-		chess_field1.field_f[0][0].add_position_field('b', 'r', 1);
-		chess_field1.field_f[0][7].add_position_field('b', 'r', 2);
-		chess_field1.field_f[0][1].add_position_field('b', 'h', 1);
-		chess_field1.field_f[0][6].add_position_field('b', 'h', 2);
-		chess_field1.field_f[0][2].add_position_field('b', 'e', 1);
-		chess_field1.field_f[0][5].add_position_field('b', 'e', 2);
-		chess_field1.field_f[0][3].add_position_field('b', 'q', 1);
-		chess_field1.field_f[0][4].add_position_field('b', 'k', 1);
-		//chess_field = chess_field1;
+		jmFile.add(jmiSave);
+		jmiSave.addActionListener(new SaveListener());
+		jmFile.addSeparator();//перегородка между кнопками СОХРАНИТЬ и ВЫХОД
+		JMenuItem jmiExit = new JMenuItem("Exit");//создание пункта ВЫХОД
+		jmFile.add(jmiExit);
+		jmiExit.addActionListener(new ExitListener());
+		jmb.add(jmFile);//Связывание меню File со строкой меню
 		
+		JMenu jmMode = new JMenu
+				("Mode");
+		JMenuItem jmiEasy = new JMenuItem("Easy");
+		JMenuItem jmiMedium = new JMenuItem("Medium");
+		jmiEasy.addActionListener(new EasyListener());
+		jmiMedium.addActionListener(new MediumListener());
+		jmMode.add(jmiEasy);
+		jmMode.add(jmiMedium);
+		jmb.add(jmMode);
 		
-		JFrame jfrm = new JFrame ("Chess"); //Создание нового котейнера JFrame
-		jfrm.getContentPane().setLayout(new FlowLayout());//Установка диспетчера компоновки FlowLayout
-		jfrm.setSize(800,800); //Начальный размер фрейма
-		//завершение программы при закрытии окна пользователем
-		jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		//создание метки для отображения информации,выведенной пользователем
-		jlab = new JLabel();
-		
-		//создание строки меню
-		JMenuBar jmb = new JMenuBar();
-		
-		//создание меню File,Options, Colors
-		JMenu jmFile = new JMenu("File");
-		//создание пунктов меню File
-				JMenuItem jmiOpen = new JMenuItem("Open");
-				JMenuItem jmiSave = new JMenuItem("Save");
-				JMenuItem jmiExit = new JMenuItem("Exit");
-				//Включение пунктов в состав меню File
-				jmFile.add(jmiOpen);
-				jmFile.add(jmiSave);
-				jmFile.addSeparator();
-				jmFile.add(jmiExit);
-				jmiOpen.addActionListener(this);
-				jmiSave.addActionListener(this);
-				jmiExit.addActionListener(this);
-				//Связывание меню File со строкой меню
-				jmb.add(jmFile);
-		
-		
-		
-		JMenu jmOptions = new JMenu ("Options");
-		//создание пунктов меню Options
+		JMenu jmOptions = new JMenu ("Options");//создание пунктов меню Options
 		JMenuItem jmiBack = new JMenuItem("Back" );
-				JMenuItem jmiReset = new JMenuItem("Reset" );
-				//Включение пунктов в состав меню Options
-				jmOptions.add(jmiBack);
-				jmOptions.addSeparator();
-				jmOptions.add(jmiReset);
-				
-				jmiBack.addActionListener(this);
-				jmiReset.addActionListener(this);
-				//Связывание меню Options) со строкой меню
-				jmb.add(jmOptions);
+		jmOptions.add(jmiBack);//Включение пункта в состав меню Options
+		jmiBack.addActionListener(new BackListener());
+		jmOptions.addSeparator();
+		JMenuItem jmiReset = new JMenuItem("Reset" );
+		jmOptions.add(jmiReset);//Включение пункта в состав меню Options
+		jmiReset.addActionListener(new ResetListener());
+		jmb.add(jmOptions);		//Связывание меню Options) со строкой меню
 		JMenu jmHelp = new JMenu("Help");
 		//создание пунктов меню Help
 		JMenuItem jmiRules = new JMenuItem ("Rules");
-		JMenuItem jmiAbout = new JMenuItem ("About");
-
-		//Включение пунктов в состав меню Help
 		jmHelp.add(jmiRules);
+		jmiRules.addActionListener(new RulesListener());//слушатель для правил
 		jmHelp.addSeparator();
+		JMenuItem jmiAbout = new JMenuItem ("About");
 		jmHelp.add(jmiAbout);
-		
-		jmiAbout.addActionListener(this);
-		jmiRules.addActionListener(this);
-		//Связывание меню Help со строкой меню
-		jmb.add(jmHelp);
-		//Включить метки на панель содержимого
-		jfrm.getContentPane().add(jlab);
-		//Включить меню в состав фрейма
-		jfrm.setJMenuBar(jmb);
-		 
-		
-		
-		
+		jmiAbout.addActionListener(new AboutListener());//слушатель на ОБ
+		jmb.add(jmHelp);//Связывание меню Help со строкой меню		
+		frame.getContentPane().setLayout(new FlowLayout());   //Установка диспетчера компоновки FlowLayout
+		frame.setJMenuBar(jmb);//Включить меню в состав фрейма		 
+		JLabel labMove = new JLabel("Now is YOUR move!");
+		labMove.setPreferredSize(new Dimension(350, 350));		
+		labMove.setForeground(Color.RED);
+		Font font = new Font("Verdana", Font.BOLD, 25);
+		labMove.setFont(font);
 		//Создание таблицы
-		/*DefaultTableModel model = new DefaultTableModel(data, headings)
-        {
-            //  Returning the Class of each column will allow different
-            //  renderers to be used based on Class
-            public Class getColumnClass(int column)
-            {
-                return getValueAt(0, column).getClass();
-            }
-        };*/
-       // JTable jtabField  = new JTable( model );
 		JTable jtabField;
-		jtabField = new JTable(data, headings);
-		JScrollPane jscrlp = new JScrollPane(jtabField);
-		jtabField.setPreferredScrollableViewportSize(new Dimension(450, 80));
+		jtabField = new JTable(data, headings) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
 		ListSelectionModel lsmRow = jtabField.getSelectionModel();
-		JLabel jlab1;
-		jlab1 = new JLabel();
+		ListSelectionModel lsmColumn = jtabField.getSelectionModel();
+		JLabel jlabRow = new JLabel();
+
+		
+		jlabRow.setPreferredSize(new Dimension(200, 200));
 		jtabField.setRowSelectionAllowed(true);
-		jtabField.setColumnSelectionAllowed(false);
+		jtabField.setColumnSelectionAllowed(true);
+		JLabel jlabColumn = new JLabel();
+		Location selectedFigure;
+		 selectedFigure=new Location();
+		 oldSelectedFigure = new Location();
 		lsmRow.addListSelectionListener (new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent le) {
-				String str = "Selected Rows: ";
-				int[] rows = jtabField.getSelectedRows();
-				int[] columns = jtabField.getSelectedColumns();
-				//int row = jtabField.getSelectedRows();
-				//int column = jtabField.getSelectedColumns();
-				for(int i=0; i <rows.length; i++) str += rows[i] + " ";
-				jlab.setText(str);
-				/*if(!move)
-				{
-				back.add_location(rows[0], columns[0]);
-				move = true;
-				}
-				else
-				{
-				forward.add_location(rows[0], columns[0]);
-				move = false;
-				}*/
+				String str, strX, strY;
+				strX="";
+				strY="";
+				str = "Selected Row and Column : ";
+				int row = jtabField.getSelectedRow();
+				int column = jtabField.getSelectedColumn();
+				strX += row; 
+				strY += column; 
+				str += row + " " + column;
+				selectedFigure.x = row-1;
+				selectedFigure.y = column-1;
+				if(oldSelectedFigure.x!= selectedFigure.x || oldSelectedFigure.y!= selectedFigure.y) {
+				handField.selectedFigure.x = selectedFigure.x;
+				oldSelectedFigure.x= selectedFigure.x;
+				handField.selectedFigure.y = selectedFigure.y;
+				oldSelectedFigure.y= selectedFigure.y;
+				
+				//ВАЖНО!!!!! 
+				//if(!handField.flagReplay) {
+					handField.sleepy.interrupt();
+					handField.checkSelectedFigureX();
+					handField.thread.interrupt();
+				render.setField(handField.fieldChess);
+				render.setGreenField(handField.GreanCircles);
+
+			}			
+				jlabRow.setText(str);
+				
 			}
 		}
 				);
-		jtabField.setRowSelectionAllowed(false);
-		jtabField.setColumnSelectionAllowed(true);
 		TableColumnModel tcm = jtabField.getColumnModel();
-		
 		ListSelectionModel lsmCol= tcm.getSelectionModel();
 		lsmCol.addListSelectionListener (new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent le1) {
-				String str2 = "Selected Columns: ";
-				int[] rows = jtabField.getSelectedRows();
-				int[] columns = jtabField.getSelectedColumns();
-				for(int i=0; i <columns.length; i++) str2 += columns[i] + " ";
-				jlab1.setText(str2);
-				/*if(!move)
-				{
-				back.add_location(rows[0], columns[0]);
-				move = true;
-				}
-				else
-				{
-				forward.add_location(rows[0], columns[0]);
-				move = false;
-				}*/
+			public void valueChanged(ListSelectionEvent le) {
+				String str, strY;
+				strY="";
+				str = "Selected Column : ";
+				int column = jtabField.getSelectedColumn();
+				str +=  column;
+				selectedFigure.y = column-1;
+				if(oldSelectedFigure.y!= selectedFigure.y) {
+				handField.selectedFigure.y = selectedFigure.y;
+				oldSelectedFigure.y= selectedFigure.y;
+				handField.yChange = true;
+				
+				handField.sleepy.interrupt();
+				handField.checkSelectedFigureY();
+				handField.thread.interrupt();
+				
+				
+			}			
+				jlabColumn.setText(str);
+				
 			}
 		}
 				);
-
-        
-        
-        
-		JLabel jlab2 = new JLabel();
-		TableModel tm;
-		//Обработка изменения модели таблицы
-		tm = jtabField.getModel();
-		tm.addTableModelListener(new TableModelListener() {
-			public void tableChanged(TableModelEvent tme) {
-				if(tme.getType() == TableModelEvent.UPDATE) {
-					//отображние координат ячейки и нового значения
-					jlab2.setText("Cell " + tme.getFirstRow() + ", " + tme.getColumn() + " changed."
-							+ " The new value: " + tm.getValueAt(tme.getFirstRow(), tme.getColumn()));
-					
-				}
-			}
-		});
-		TableColumnModel tmc = jtabField.getColumnModel();
-		
-		//jtabField.setMaximumSize(new Dimension(800, 800));
-		
-		//JScrollPane jscrlp1 = new JScrollPane(jfrm);
-		//jtabField.setPreferredScrollableViewportSize(new Dimension(800, 800));
-		//jfrm.getContentPane().add(jscrlp1);
+		/*
+		TableColumnModel tcm = jtabField.getColumnModel();
+		ListSelectionModel lsmCol= tcm.getSelectionModel();
+		lsmCol.addListSelectionListener (new ColumnListener(jtabField, jlabColumn));
+		*/
 		jtabField.setSize(800, 800);
-		//jtabField.setMaximumSize(new Dimension(800, 800));
-		//jtabField.setMinimumSize(new Dimension(800, 800));
-		
 		jtabField.setRowHeight(0, 10);
 		jtabField.setRowHeight(9, 10);
 		jtabField.setRowHeight(1, 80);
@@ -246,66 +203,128 @@ class Interface extends JPanel implements ActionListener  {
 		jtabField.setRowHeight(6, 80);
 		jtabField.setRowHeight(7, 80);
 		jtabField.setRowHeight(8, 80);
+		//jtabField.addMouseListener(new PlayerListener());
 		jtabField.setBackground(Color.WHITE);
-		Render render = new Render();
-		/*if(move)
-		{
-			for (int i = 1; i <9; i++) {
-				jtabField.getColumnModel().getColumn(i).setCellRenderer(render);
-			}
-			getTableCellRendererComponentMOVE(JTable table,
-			        Object value,
-			        boolean isSelected,
-			        boolean hasFocus,
-			        int row,
-			        int column, Location back, Location forward, char color, char figure)
-			 render.getTableCellRendererComponentMOVE()
-		}
-		*/
-		//render.get_field(chess_field1);
+		fieldChess = new Field();
+		//всобачить получение от обработчика поля 
+		StartField firstField = new StartField();
+		firstField.newFigure();
+		handField = new FieldHandler();
+		handField.customer = thread;
+		handField.customSl = sleepyGUI;
+		firstField.firstPosition();
+		render = new Render();
+		render.setField(handField.fieldChess);
 		for (int i = 1; i <9; i++) {
 			jtabField.getColumnModel().getColumn(i).setCellRenderer(render);
 		}
-		jtabField.setPreferredScrollableViewportSize(new Dimension(800,800));
-		jtabField.setRowSelectionAllowed(false);
-		jtabField.setColumnSelectionAllowed(false);
 		
+		JLabel jlabBack = new JLabel();
+		jlabBack.setPreferredSize(new Dimension(350, 350));
 		
-		
-
-		
-		
-		jfrm.getContentPane().add(jlab);
-		jfrm.getContentPane().add(jlab1);
-		jfrm.getContentPane().add(jlab2);
-		jfrm.getContentPane().add(jscrlp);
-        jfrm.pack();
-        jfrm.setSize(1000, 1000);
-        jfrm.setLocationRelativeTo(null);
+		MyPanel panel = new MyPanel();
+		panel.setLayout(new FlowLayout());
+		panel.add(BorderLayout.WEST,labMove);
+		panel.add(BorderLayout.CENTER,jtabField);
+		panel.setPreferredSize(new Dimension(1400, frame.getHeight()));
+		frame.getContentPane().add(panel);
+		frame.pack();
+		frame.setSize(1400, frame.getHeight());
+		frame.setLocationRelativeTo(null);
         //Отобажение фрейма
-		jfrm.setVisible(true);
-	}
-	public void gameRender()
-	{
-		//back.draw(g);
-	}
-	//Обработка событий действий для пункта меню
-	public void actionPerformed(ActionEvent ae) {
-		//Получение команды действия соответствующей выбранному пункту
-			String comStr = ae.getActionCommand();
-			if(comStr.equals("Exit")) System.exit(0);
-			//jlab.setText(comStr + " Selected");
-			gameRender();
-	}
+		frame.setVisible(true);
 		
-	public static void main(String[] args) {
+		thread.start();
+	}
+	public void run() {
+		try {
+			sleepyGUI.join();
+		} catch(InterruptedException e) {
+			//return;
+		}
+	}
+	private final class ColumnListener implements ListSelectionListener {
+		private final JTable jtabField;
+		private final JLabel jlabColumn;
+
+		private ColumnListener(JTable jtabField, JLabel jlabColumn) {
+			this.jtabField = jtabField;
+			this.jlabColumn = jlabColumn;
+			
+		}
+
+		public void valueChanged(ListSelectionEvent le1) {
+			String strY = "";
+			String str2 = "Selected Columns: ";
+			int column = jtabField.getSelectedColumn();
+			str2 += column + " ";
+			strY +=column;
+			jlabColumn.setText(str2);
+			//selectedFigure.y = column-1;
+			/*if(oldSelectedFigure.y!= selectedFigure.y) {
+				handField.selectedFigure.y = selectedFigure.y;
+				oldSelectedFigure.y= selectedFigure.y;
+			
+				//handField.checkSelectedFigure();
+			}*/
+			
+		}
 		
-		//Фрейм оздается в потоке обработки событий
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new Interface();
-			}
-		});
+	}
+	class OpenListener implements ActionListener {//слушатель кноки ОТКРЫТЬ
+		public void actionPerformed(ActionEvent event) {
+			handField.record.replay();
+		}
+	}
+	class SaveListener implements ActionListener {//слушатель кноки СОХРАНИТЬ
+		public void actionPerformed(ActionEvent event) {
+			handField.record.save();
+		}
+	}
+	class ExitListener implements ActionListener {//слушатель кноки ВЫХОД
+		public void actionPerformed(ActionEvent event) {
+			 System.exit(0);
+		}
 	}
 	
+	class BackListener implements ActionListener {//слушатель кноки НАЗАД
+		public void actionPerformed(ActionEvent event) {}
+	}
+	class EasyListener implements ActionListener {//слушатель кноки НАЗАД
+		public void actionPerformed(ActionEvent event) {
+			handField.easyGame = true;
+			System.out.println("EASY");
+		}
+	}
+	class MediumListener implements ActionListener {//слушатель кноки НАЗАД
+		public void actionPerformed(ActionEvent event) {
+			handField.easyGame = false;
+			System.out.println("MEDIUM");
+		}
+	}
+	class ResetListener implements ActionListener {//слушатель кноки СБРОС
+		public void actionPerformed(ActionEvent event) {}
+	}
+	class AboutListener implements ActionListener {//слушатель кноки ОБ
+		public void actionPerformed(ActionEvent event) {}
+	}
+	class RulesListener implements ActionListener {//слушатель кноки ПРАВИЛА
+		public void actionPerformed(ActionEvent event) {}
+	}
+	class ChessListener implements ActionListener {//слушатель кноки ПРАВИЛА
+		public void actionPerformed(ActionEvent event) {}
+	}
+	class PlayerListener implements MouseListener {
+		public void mousePressed(MouseEvent event) {}
+		public void mouseClicked(MouseEvent event) {
+		gui.render.setField(handField.fieldChess);
+		System.out.print("kafkasfjaf");}
+		public void mouseExited(MouseEvent  event) {}
+		public void mouseEntered(MouseEvent  event) {}
+		public void mouseReleased(MouseEvent  event) {
+			gui.render.setField(handField.fieldChess);
+			System.out.print("kafkasfjaf");
+		}
+	}
 }
+
