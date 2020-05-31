@@ -62,6 +62,12 @@ public class Notation {
         catch(IOException ex){
             System.out.println(ex.getMessage());
         }
+
+        String buf[];
+        buf = new String[1];
+        TranslateNotation.TranslateNotationInto(game,buf);
+        game = buf[0];
+
         if(myFile.canWrite()) {
             System.out.println("File can be written");
             try(FileWriter writer = new FileWriter(temp, false))
@@ -234,11 +240,22 @@ public class Notation {
         }
         else
             System.out.println("File can not be readed");
+        /*String buf[];
+        buf = new String[1];
+        buf[0] = "";
+        System.out.println("REPLAY STRING:: " + replayStr);
+        TranslateNotation.TranslateNotationInto(replayStr,buf);
+        System.out.println("RESULT STRING:: 1111     " + buf[0]);
+
+        System.out.println("RESULT STRING:: 222     " + buf[0]);*/
+        String buf[];
+        buf = new String[1];
+        TranslateNotation.TranslateNotationFrom(replayStr,buf);
+        replayStr = buf[0];
         frame.setVisible(false);
     }
 
 
 
 }
-
 
