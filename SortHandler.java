@@ -288,8 +288,14 @@ class FileFormat {
         else
             System.out.println("File can not be readed");
 
-        if( fileSTR!=""){
-            length =  fileSTR.length();
+        if( fileSTR!="") {
+
+
+            String buf[];
+            buf = new String[1];
+            TranslateNotation.TranslateNotationFrom(fileSTR, buf);
+            fileSTR = buf[0];
+            length = fileSTR.length();
         }
     }
 }
