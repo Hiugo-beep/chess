@@ -162,10 +162,16 @@ class Interface implements Runnable /*extends JPanel*/  {
                                                      oldSelectedFigure.y= selectedFigure.y;
 
                                                      //ВАЖНО!!!!!
+
+
                                                      //if(!handField.flagReplay) {
-                                                     handField.sleepy.interrupt();
+                                                     //handField.sleepy.interrupt();
+                                                     handField.server.runThreadServer();
+                                                     //handField.server.runThread();
                                                      handField.checkSelectedFigureX();
-                                                     handField.thread.interrupt();
+                                                     handField.server.stopThreadServer();
+                                                     //handField.thread.interrupt();
+                                                     //handField.server.stopThread();
                                                      render.setField(handField.fieldChess);
                                                      render.setGreenField(handField.GreanCircles);
 
@@ -190,9 +196,13 @@ class Interface implements Runnable /*extends JPanel*/  {
                                                      oldSelectedFigure.y= selectedFigure.y;
                                                      handField.yChange = true;
 
-                                                     handField.sleepy.interrupt();
+                                                     //handField.sleepy.interrupt();
+                                                     handField.server.runThreadServer();
+                                                     //handField.server.runThread();
                                                      handField.checkSelectedFigureY();
-                                                     handField.thread.interrupt();
+                                                     //handField.thread.interrupt();
+                                                     handField.server.stopThreadServer();
+                                                     //handField.server.stopThread();
 
 
                                                  }
@@ -225,6 +235,8 @@ class Interface implements Runnable /*extends JPanel*/  {
         firstField.newFigure();
         handField = new FieldHandler();
         handField.customer = thread;
+        //handField.client.main();
+
         handField.customSl = sleepyGUI;
         firstField.firstPosition();
         render = new Render();
